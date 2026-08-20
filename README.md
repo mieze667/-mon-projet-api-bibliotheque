@@ -10,6 +10,7 @@ API REST Flask permettant à une bibliothèque universitaire d'exposer son catal
 - Marshmallow pour la validation des entrées/sorties
 - Flask-JWT-Extended (access + refresh token)
 - Flasgger (Swagger UI sur `/docs/` en mode développement)
+- Flask-Limiter (limitation de débit sur `/auth/login`) + en-têtes de sécurité
 - pytest + pytest-cov
 
 ## Architecture
@@ -65,6 +66,21 @@ docker compose up
 
 Le conteneur applique automatiquement les migrations (`flask db upgrade`) avant de
 démarrer Gunicorn.
+
+## Sécurité
+
+- `POST /api/v1/auth/login` est limité à **5 tentatives par minute et par IP**
+  (Flask-Limiter) pour freiner le brute-force ; au-delà, l'API renvoie `429`.
+- En-têtes de sécurité ajoutés à chaque réponse : `X-Content-Type-Options`,
+  `X-Frame-Options`, `Referrer-Policy`, `X-XSS-Protection`, et `Strict-Transport-Security`
+  hors mode développement.
+- Aucun secret en dur : tout passe par les variables d'environnement (`.env`).
+
+## Réponses aux questions de réflexion
+
+Voir [`REFLEXION.md`](./REFLEXION.md) pour les réponses aux questions 1 à 5
+(choix du sujet, contrat des ressources, codes d'erreur, schémas JSON,
+modèle de données).
 
 ## Rôles
 
