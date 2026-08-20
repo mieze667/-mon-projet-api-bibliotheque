@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite:////app/instance/app.db
+    volumes:
+      - api-data:/app/instance
+    command: >
+      sh -c "flask db upgrade && gunicorn -b 0.0.0.0:5000 run:app"
+
+volumes:
+  api-data:
