@@ -43,6 +43,20 @@ def list_books():
 
 @bp.get("/<int:book_id>")
 def get_book(book_id):
+    """Détail d'un livre.
+    ---
+    tags: [Books]
+    parameters:
+      - name: book_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Livre trouvé
+      404:
+        description: Livre introuvable
+    """
     book = book_service.get_book_or_404(book_id)
     return jsonify(schema.dump(book))
 
@@ -53,6 +67,36 @@ def create_book():
     """Créer un livre (staff uniquement).
     ---
     tags: [Books]
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required: [title, isbn, author_id]
+          properties:
+            title:
+              type: string
+              example: Les Misérables
+            isbn:
+              type: string
+              example: "9780451419439"
+            year:
+              type: integer
+              example: 1862
+            genre:
+              type: string
+              example: Roman
+            author_id:
+              type: integer
+              example: 1
+    responses:
+      201:
+        description: Livre créé
+      403:
+        description: Réservé au staff
+      422:
+        description: Données invalides
     """
     try:
         data = schema.load(request.get_json(force=True) or {})
@@ -65,6 +109,38 @@ def create_book():
 @bp.put("/<int:book_id>")
 @role_required("staff")
 def update_book(book_id):
+    """Modifier un livre (staff uniquement).
+    ---
+    tags: [Books]
+    parameters:
+      - name: book_id
+        in: path
+        type: integer
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            isbn:
+              type: string
+            year:
+              type: integer
+            genre:
+              type: string
+            available:
+              type: boolean
+    responses:
+      200:
+        description: Livre mis à jour
+      403:
+        description: Réservé au staff
+      404:
+        description: Livre introuvable
+    """
     try:
         data = schema.load(request.get_json(force=True) or {}, partial=True)
     except ValidationError as err:
@@ -79,6 +155,20 @@ def delete_book(book_id):
     """Supprimer un livre (staff uniquement, 403 sinon).
     ---
     tags: [Books]
+    parameters:
+      - name: book_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      204:
+        description: Livre supprimé
+      403:
+        description: Réservé au staff
+      404:
+        description: Livre introuvable
+      409:
+        description: Le livre a un historique d'emprunts, suppression refusée
     """
     book_service.delete_book(book_id)
     return "", 204

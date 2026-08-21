@@ -18,6 +18,24 @@ def borrow():
     """Emprunter un livre. 409 si indisponible ou si limite d'emprunts atteinte.
     ---
     tags: [Loans]
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required: [book_id]
+          properties:
+            book_id:
+              type: integer
+              example: 1
+    responses:
+      201:
+        description: Emprunt créé
+      409:
+        description: Livre indisponible ou quota de 3 emprunts atteint
+      422:
+        description: Données invalides
     """
     try:
         data = create_schema.load(request.get_json(force=True) or {})
@@ -35,6 +53,18 @@ def return_loan(loan_id):
     """Retourner un livre emprunté.
     ---
     tags: [Loans]
+    parameters:
+      - name: loan_id
+        in: path
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Retour enregistré
+      404:
+        description: Emprunt introuvable
+      409:
+        description: Livre déjà retourné
     """
     user = User.query.get_or_404(get_jwt_identity())
     loan = loan_service.return_book(user, loan_id)

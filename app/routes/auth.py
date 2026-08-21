@@ -29,6 +29,30 @@ def register():
     """Inscription d'un nouvel utilisateur.
     ---
     tags: [Auth]
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required: [email, username, password]
+          properties:
+            email:
+              type: string
+              example: staff@lib.com
+            username:
+              type: string
+              example: staff1
+            password:
+              type: string
+              example: secret123
+            role:
+              type: string
+              enum: [member, staff]
+              example: staff
+    responses:
+      201:
+        description: Utilisateur créé, jetons renvoyés
     """
     try:
         data = register_schema.load(request.get_json(force=True) or {})
@@ -51,6 +75,27 @@ def login():
     Limitée à 5 tentatives par minute et par IP pour freiner le brute-force.
     ---
     tags: [Auth]
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required: [email, password]
+          properties:
+            email:
+              type: string
+              example: staff@lib.com
+            password:
+              type: string
+              example: secret123
+    responses:
+      200:
+        description: Connexion réussie
+      401:
+        description: Identifiants invalides
+      429:
+        description: Trop de tentatives (limite 5/minute)
     """
     try:
         data = login_schema.load(request.get_json(force=True) or {})
