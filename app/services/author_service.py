@@ -31,5 +31,7 @@ def update_author(author_id, data):
 
 def delete_author(author_id):
     author = get_author_or_404(author_id)
+    if author.books:
+        raise ApiError("Impossible de supprimer un auteur ayant des livres au catalogue", 409)
     db.session.delete(author)
     db.session.commit()

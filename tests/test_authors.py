@@ -98,3 +98,20 @@ def test_delete_author_requires_staff(client, staff_token, member_token, auth_he
 
     allowed = client.delete(f"/api/v1/authors/{author_id}", headers=auth_header(staff_token))
     assert allowed.status_code == 204
+
+
+def test_delete_author_with_books_is_conflict(client, staff_token, auth_header):
+    author_res = client.post(
+        "/api/v1/authors",
+        json={"name": "Auteur avec livres"},
+        headers=auth_header(staff_token),
+    )
+    author_id = author_res.get_json()["id"]
+    client.post(
+        "/api/v1/books",
+        json={"title": "Un livre", "isbn": "7777777777", "author_id": author_id},
+        headers=auth_header(staff_token),
+    )
+
+    res = client.delete(f"/api/v1/authors/{author_id}", headers=auth_header(staff_token))
+    assert res.status_code == 409

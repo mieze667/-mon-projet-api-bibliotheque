@@ -38,5 +38,7 @@ def update_book(book_id, data):
 
 def delete_book(book_id):
     book = get_book_or_404(book_id)
+    if book.loans:
+        raise ApiError("Impossible de supprimer un livre ayant un historique d'emprunts", 409)
     db.session.delete(book)
     db.session.commit()
