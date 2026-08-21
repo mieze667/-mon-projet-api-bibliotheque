@@ -18,7 +18,24 @@ class BaseConfig:
         days=int(os.environ.get("JWT_REFRESH_TOKEN_EXPIRES_DAYS", 30))
     )
     DEBUG = False
-    SWAGGER = {"title": "Bibliothèque API", "uiversion": 3, "specs_route": "/docs/"}
+    SWAGGER = {
+        "title": "Bibliothèque API",
+        "uiversion": 3,
+        "specs_route": "/docs/",
+        "securityDefinitions": {
+            "Bearer": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "Jeton JWT. Format : Bearer <votre_access_token>",
+            }
+        },
+        # Sécurité par défaut sur toutes les routes : Swagger ajoute alors
+        # automatiquement l'en-tête Authorization aux appels une fois "Authorize"
+        # rempli. Les routes publiques (register, login, liste des livres...)
+        # ignorent simplement ce header s'il est présent.
+        "security": [{"Bearer": []}],
+    }
     RATELIMIT_STORAGE_URI = os.environ.get("RATELIMIT_STORAGE_URI", "memory://")
 
 

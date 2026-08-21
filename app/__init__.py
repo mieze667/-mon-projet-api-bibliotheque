@@ -21,6 +21,9 @@ def create_app(config_name=None):
     limiter.init_app(app)
 
     if app.config.get("DEBUG"):
+        swagger.template = {
+            "security": [{"Bearer": []}],
+        }
         swagger.init_app(app)
 
     logging.basicConfig(level=logging.INFO)
